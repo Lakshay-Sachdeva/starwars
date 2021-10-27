@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="./css/main_style.css" rel="stylesheet" />
+</head>
+<body>
+    <div id = "banner" >
+        <div>
+            <img id="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1024px-Star_Wars_Logo.svg.png" />
+            <br/>
+            <input type="text" id="query" oninput="debounce(main , 1000)" placeholder = "Enter Character Name" /> 
+            <div id = "search_result"></div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+var name_div = document.getElementById("search_result") ;
+var timerId ;
+let m_div = document.createElement('div') ;
+m_div.setAttribute('class' , 'm_div')
+
+search = async (ele) => {    
+    let res = await fetch(`https://swapi.dev/api/people?search=${ele}&format=json`) ;
+    let data = await res.json() ;
+    console.log(data.results);
+    return data.results;
+}
+append_search = async (el) => {
+    name_div.innerHTML = null ;
+    el.forEach(({name , mass , eye_color , birth_year , gender , hair_color , height}) => {
+        let sw_char = document.createElement('div') ;
+        let char = document.createElement('p') ;
+        char.innerText = name ;
+        sw_char.setAttribute('class' , 'sub_div');
+        sw_char.onmouseover = ()=>{
+            // console.log("hi");
+            let r_div = document.createElement('div') ;
+            let l_div = document.createElement('div') ;
+
+            r_div.setAttribute('class' , 'right_div') ;
+            l_div.setAttribute('class' , 'left_div') ;
+
+            //left div
+            let hair_color_p = document.createElement('p') ;
+            let mass_p = document.createElement('p') ;
+            let birth_year_p = document.createElement('p') ;
+
+            hair_color_p.innerText = `Hair Color: ${hair_color}` ;
+            mass_p.innerText = `Mass: ${mass}` ;
+            birth_year_p.innerText = `Birth Year: ${birth_year}`
+
+            //right div
+            let eye_color_p = document.createElement('p') ;
+            let gender_p = document.createElement('p') ;
+            let height_p = document.createElement('p') ;
+
+            eye_color_p.innerText = `Eye Color: ${eye_color}` ;
+            gender_p.innerText = `Gender: ${gender}` ;
+            height_p.innerText = `Height: ${height}` ;
+
+            l_div.append(mass_p , hair_color_p , birth_year_p) ;
+            r_div.append(eye_color_p , gender_p , height_p ) ;
+            m_div.append(l_div , r_div) ;
+            sw_char.append(m_div)
+
+        } ;
+        sw_char.onmouseout = () =>{
+            m_div.innerHTML = null ;
+        }
+        sw_char.append(char) ;
+        name_div.append(sw_char) ;
+    });
+}
+main = async () => {
+    var n = document.getElementById("query").value ;
+    console.log(n);
+    if(n.length < 1){
+        name_div.innerHTML = null ;
+        return false ;
+    }
+    let characters = await search(n) ;
+    if(characters === undefined){
+            return false;
+        }
+    append_search(characters)
+}
+debounce = (fn , del) => {
+    var n = document.getElementById("query").value ;
+    if(timerId){
+        clearTimeout(timerId)
+    }
+    timerId = setTimeout( () => {
+        fn();
+    }, del)
+}
+
+</script>
